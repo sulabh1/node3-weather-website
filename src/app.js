@@ -5,6 +5,7 @@ const geocode = require("./utils/geocode");
 const forecast = require("./utils/forecast");
 
 const app = express();
+const port = process.env.PORT || 3000;
 //define paths for Express config
 const publicDirectoryPath = path.join(__dirname, "../public");
 const viewsPath = path.join(__dirname, "../templates/views");
@@ -46,25 +47,28 @@ app.get("/weather", (req, res) => {
 			error: "You must provide an address",
 		});
 	}
-	geocode(req.query.address, (error, { lattitude, longitude, location }={}) => {
-		if (error) {
-			return res.send({
-				error,
-			});
-		}
-		forecase(lattitude, longitude, (error, forecastData) => {
+	geocode(
+		req.query.address,
+		(error, { lattitude, longitude, location } = {}) => {
 			if (error) {
 				return res.send({
 					error,
 				});
 			}
-			res.send({
-				forecast: forecastData,
-				location,
-				address: req.query.address,
+			forecase(lattitude, longitude, (error, forecastData) => {
+				if (error) {
+					return res.send({
+						error,
+					});
+				}
+				res.send({
+					forecast: forecastData,
+					location,
+					address: req.query.address,
+				});
 			});
-		});
-	});
+		}
+	);
 	// res.send({
 	// 	forecast: "It is snowing",
 	// 	location: "kathmandu",
@@ -95,6 +99,6 @@ app.get("*", (req, res) => {
 		errorMessage: "Page not found",
 	});
 });
-app.listen(3000, () => {
-	console.log("Server is up on port 3000.");
+app.listen(port, () => {
+	console.log("Server is up on port." + port);
 });
